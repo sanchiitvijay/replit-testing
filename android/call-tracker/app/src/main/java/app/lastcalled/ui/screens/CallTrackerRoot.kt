@@ -40,9 +40,15 @@ fun CallTrackerRoot(viewModel: CallTrackerViewModel) {
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) permissionRevision++
+            if (event == Lifecycle.Event.ON_RESUME) {
+                permissionRevision++
+                viewModel.onAppResumed()
+            }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
+        if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+            viewModel.onAppResumed()
+        }
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 

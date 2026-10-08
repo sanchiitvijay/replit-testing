@@ -56,7 +56,12 @@ class CallTrackerDatabaseTest {
         )
 
         val summaries = database.contactDao()
-            .observeSummaries(query = "", cutoffMillis = 0, sortOrder = "LONGEST")
+            .observeSummaries(
+                query = "",
+                numberQuery = "",
+                cutoffMillis = 0,
+                sortOrder = "LONGEST",
+            )
             .first()
 
         assertEquals("contact:2", summaries.first().contactId)
@@ -77,6 +82,7 @@ class CallTrackerDatabaseTest {
             listOf(
                 ContactPhoneEntity("contact:a", "+12025550101", "+12025550101"),
                 ContactPhoneEntity("contact:b", "+12025550102", "+12025550102"),
+                ContactPhoneEntity("contact:b", "+442079460958", "+442079460958"),
                 ContactPhoneEntity("contact:c", "+12025550103", "+12025550103"),
             ),
         )
@@ -92,21 +98,21 @@ class CallTrackerDatabaseTest {
         )
         val dao = database.contactDao()
 
-        val pastCutoff = dao.observeSummaries("", 200, "LONGEST").first()
+        val pastCutoff = dao.observeSummaries("", "", 200, "LONGEST").first()
         assertEquals(listOf("contact:c", "contact:a"), pastCutoff.map { it.contactId })
 
-        val searchResult = dao.observeSummaries("ali", 0, "ALPHABETICAL").first()
+        val searchResult = dao.observeSummaries("ali", "", 0, "ALPHABETICAL").first()
         assertEquals(listOf("contact:a"), searchResult.map { it.contactId })
 
         val phoneSearchResult = dao.observeSummaries(
-            query = "2025550102",
-            numberQuery = "2025550102",
+            query = "2079460958",
+            numberQuery = "2079460958",
             cutoffMillis = 0,
             sortOrder = "ALPHABETICAL",
         ).first()
         assertEquals(listOf("contact:b"), phoneSearchResult.map { it.contactId })
 
-        val recentFirst = dao.observeSummaries("", 0, "RECENT").first()
+        val recentFirst = dao.observeSummaries("", "", 0, "RECENT").first()
         assertEquals(
             listOf("contact:b", "contact:a", "contact:c"),
             recentFirst.map { it.contactId },

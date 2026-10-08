@@ -227,6 +227,10 @@ class CallRepository(
     suspend fun clearLocalData() = withContext(Dispatchers.IO) {
         database.clearAllTables()
         settingsDao.save(AppSettingsEntity())
+        context.getSharedPreferences("permission_prompts", Context.MODE_PRIVATE)
+            .edit()
+            .clear()
+            .apply()
     }
 
     private fun toPhoneEntities(contact: ImportedContact): List<ContactPhoneEntity> =
